@@ -2,9 +2,9 @@
 ---
 ![RFM Analysis](https://hivemarketingcloud.com/media/zphnp5zi/rfm-analysis-blog-graphic-01.png?center=0.55126050420168071,0.58738261801222658&mode=crop&width=730&height=467&rnd=133039200171670000)
 
-# 📊 Project Title: [Your Project Name]  
-Author: Ng
-Date: YYYY-MM-DD  
+# 📊 Project Title: Retail Customer Segmentation With RFM Analysis (Python)
+Author: Nguyễn Văn Trí
+Date: 2025-01-09
 
 
 ---
@@ -21,7 +21,7 @@ Date: YYYY-MM-DD
 ### Objective:
 ### 📖 What is this project about? What Business Question will it solve?
 
-Clearly outline what this project does, what business questions the project will solve. 
+
 
 - Provide a brief introduction - Write in bullet point format
 - Point out the main business question
@@ -36,13 +36,9 @@ Clearly outline what this project does, what business questions the project will
 
 
 ### 👤 Who is this project for?  
+✔️ Marketing Director  
+✔️ Data analysts
 
-Mention who might benefit from this project 
-
- _Example:_
-
-✔️ Data analysts & business analysts  
-✔️ Decision-makers & stakeholders  
 
 
 
