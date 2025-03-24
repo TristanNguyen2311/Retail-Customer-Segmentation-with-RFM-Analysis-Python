@@ -20,24 +20,15 @@ Date: 2025-01-09
 
 ### Objective:
 ### 📖 What is this project about? What Business Question will it solve?
-
-
-
-- Provide a brief introduction - Write in bullet point format
-- Point out the main business question
-
-
- _Example:_
-  This project uses Python to analyze transaction data from KPMG to:
-
-✔️ Identify the behavior in customer's first transaction.  
-✔️ Provide actionable insights to increase retention rate   
- 
+This project uses RFM model to help Marketing Director segment each customer into appropriate segments to:
+✔️ Conduct marketing campaigns to show appreciation to customers for Christmas and New Year.    
+✔️ Leverage potential customers.  
 
 
 ### 👤 Who is this project for?  
-✔️ Marketing Director  
-✔️ Data analysts
+✔️ Marketing Director & Marketing Department 
+✔️ Business Analysts
+✔️ Stakeholders
 
 
 
