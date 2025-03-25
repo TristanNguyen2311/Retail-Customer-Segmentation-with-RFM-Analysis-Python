@@ -20,15 +20,15 @@ Date: 2025-01-09
 
 ### Objective:
 ### 📖 What is this project about? What Business Question will it solve?
-This project uses RFM model to help Marketing Director segment each customer into appropriate segments to:
+This project uses the RFM model to help the Marketing Director segment each customer into appropriate segments to:
 ✔️ Conduct marketing campaigns to show appreciation to customers for Christmas and New Year.    
 ✔️ Leverage potential customers.  
 
 
 ### 👤 Who is this project for?  
-✔️ Marketing Director & Marketing Department 
-✔️ Business Analysts
-✔️ Stakeholders
+✔️ Marketing Director & Marketing Department   
+✔️ Business Analysts  
+✔️ Stakeholders  
 
 
 
@@ -74,9 +74,9 @@ Table 2: Sales Transactions
 
 ## ⚒️ Main Process
 
-1️⃣ Data Cleaning & Preprocessing  
-2️⃣ Exploratory Data Analysis (EDA)  
-3️⃣ SQL/ Python Analysis 
+1 Data Cleaning & Preprocessing  
+2️ Exploratory Data Analysis (EDA)  
+3️ SQL/ Python Analysis 
 
 - First, explain codes' purpose - what they do
 
