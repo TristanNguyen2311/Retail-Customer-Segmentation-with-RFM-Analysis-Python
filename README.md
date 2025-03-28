@@ -38,36 +38,25 @@ This project uses the RFM model to help the Marketing Director segment each cust
 ## 📂 Dataset Description & Data Structure  
 
 ### 📌 Data Source  
-- Source: (Mention where the dataset is obtained from—Kaggle, company database, government sources, etc.)  
-- Size: (Mention the number of rows & columns)  
-- Format: (.csv, .sql, .xlsx, etc.)  
+- Source:  
+- Format: .csv
 
 ### 📊 Data Structure & Relationships  
 
-#### 1️⃣ Tables Used:  
-Mention how many tables are in the dataset.  
+#### 1️. Tables Used:  
+There are two tables in the dataset
 
-#### 2️⃣ Table Schema & Data Snapshot  
+#### 2️. Table Schema & Data Snapshot  
 
-Table 1: Products Table  
+Table 1: E-commerce retail 
 
-👉🏻 Insert a screenshot of table schema 
-
-📌If the table is too big, only capture a part of it that contains key metrics you used in the projects or put the table in toggle
-
- _Example:_
-
-| Column Name | Data Type | Description |  
-|-------------|----------|-------------|  
-| Product_ID  | INT      | Unique identifier for each product |  
-| Name        | TEXT     | Product name |  
-| Category    | TEXT     | Product category |  
-| Price       | FLOAT    | Price per unit |  
+![image](https://github.com/user-attachments/assets/41d71a76-3798-45e7-bb0c-c896da010998)
 
 
-Table 2: Sales Transactions  
+Table 2: Segmentation
 
-👉🏻 Insert a screenshot of table schema.
+![image](https://github.com/user-attachments/assets/d51c18fd-fd23-4607-b1f3-6197610751d8)
+
 
 
 ---
@@ -75,6 +64,7 @@ Table 2: Sales Transactions
 ## ⚒️ Main Process
 
 1 Data Cleaning & Preprocessing  
+
 2️ Exploratory Data Analysis (EDA)  
 3️ SQL/ Python Analysis 
 
