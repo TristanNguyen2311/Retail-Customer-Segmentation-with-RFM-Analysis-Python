@@ -95,7 +95,7 @@ Table 2: Segmentation
   ecommerce_retail.info()
   ```
   Output  
-  | Column        | Non-Null Count | Dtype   |
+  |               | Non-Null Count | Dtype   |
   |---------------|----------------|---------|
   | InvoiceNo     | 541909         | object  |
   | StockCode     | 541909         | object  |
@@ -123,7 +123,8 @@ Table 2: Segmentation
   ``` python
   ecommerce_retail.shape
   ```
-  
+  Output    
+  (541909, 8)
   
   
   ``` python
@@ -153,11 +154,11 @@ Table 2: Segmentation
   
   | StockCode | Count |
   |-----------|-------|
-  | **85123A** | 2313  |
-  | **22423**  | 2203  |
-  | **85099B** | 2159  |
-  | **47566**  | 1727  |
-  | **20725**  | 1639  |
+  | 85123A | 2313  |
+  | 22423  | 2203  |
+  | 85099B | 2159  |
+  | 47566  | 1727  |
+  | 20725  | 1639  |
   | ...       | ...   |
   | 84967A    | 1     |
   | 84967B    | 1     |
@@ -192,7 +193,7 @@ Table 2: Segmentation
   description_check.to_csv(path + '/description_check.csv')
   description_check_update = pd.read_csv(path + '/description_check.csv')
   
-  # Add column 'Error': True if any letter not uppercase or contains only '?
+  # Add column 'Error': True if any letter is not uppercase or contains only '?
   description_check_update['Error'] = description_check_update['Description'].str.contains(r'[a-z]|\?', regex=True)
   description_check_update
   ```
@@ -218,8 +219,8 @@ Table 2: Segmentation
   print(ecommerce_retail_update[ecommerce_retail_update['Error'] == True].shape)
   print(ecommerce_retail_update.shape)
   ```
-  Output
-  (3092, 9)
+  Output   
+  (3092, 9)   
   (541909, 9)
   
   
@@ -273,11 +274,153 @@ Table 2: Segmentation
   
   
   ``` python
-  ecommerce_retail.shape
+  # Check the reason for Unit Price <0
+  ecommerce_retail_update[ecommerce_retail_update['UnitPrice'] < 0]
   ```
-</details>
+  Output
+  | InvoiceNo | StockCode | Description        | Quantity | InvoiceDate           | UnitPrice  | CustomerID | Country         | Error |
+  |-----------|----------|--------------------|----------|------------------------|------------|------------|----------------|-------|
+  | A563186   | B        | Adjust bad debt    | 1        | 2011-08-12 14:51:00   | -11062.06  | <NA>       | United Kingdom | True  |
+  | A563187   | B        | Adjust bad debt    | 1        | 2011-08-12 14:52:00   | -11062.06  | <NA>       | United Kingdom | True  |
+
+**Nhận xét:**
+  - Có các cột chưa đúng data type nên convert về đúng dạng
+  - Có missing values ở cột Description và cột CustomerID
+  - Cột Description có 3092 đơn hàng có nội dung mô tả không chính xác
+  - Gần 88% các trường hợp có Quantity <0 là do bị cancle, 12% các trường hợp còn lại đến từ các lí do như: thất lạc, hư hỏng, đang kiểm tra lại hoặc chưa có thông tin và ta có thể thấy UnitPrice = 0
+  - 2 trường hợp có UnitPrice < 0 là do điều chỉnh nợ xấu
+  </details>
+
+  
+  <details>
+    <summary> 1.2 Handle incorrect values</summary> 
+     
+  ``` python
+  # Remove orders with Quantity <=0 (including canceled orders)
+  ecommerce_retail_update = ecommerce_retail_update[ecommerce_retail_update['Quantity'] > 0]
+  ecommerce_retail_update.shape
+  ```
+  Output  
+  (531285, 9)
+
+
+  ``` python
+  # Remove orders with UnitPrice <=0
+  ecommerce_retail_update = ecommerce_retail_update[ecommerce_retail_update['UnitPrice'] > 0]
+  ecommerce_retail_update.shape
+  ```
+  Output  
+  (530104, 9)
+  </details>
+
+
+  <details>
+    <summary>1.3 Handle missing values</summary>  
+
+  ``` python
+  # Check missing value
+  missing_values = ecommerce_retail_update.isnull().sum()
+  missing_percentage = (ecommerce_retail_update.isnull().sum() / len(ecommerce_retail_update)) * 100
+  missing_df = pd.DataFrame({'Missing Values': missing_values, 'Missing Percentage': missing_percentage})
+  missing_df
+  ```
+  Output
+  |        | Missing Values | Missing Percentage |
+  |------------|---------------|--------------------|
+  | InvoiceNo  | 0             | 0.000000%         |
+  | StockCode  | 0             | 0.000000%         |
+  | Description| 0             | 0.000000%         |
+  | Quantity   | 0             | 0.000000%         |
+  | InvoiceDate| 0             | 0.000000%         |
+  | UnitPrice  | 0             | 0.000000%         |
+  | CustomerID | 132220        | 24.942275%        |
+  | Country    | 0             | 0.000000%         |
+  | Error      | 0             | 0.000000%         |
+
+
+  ``` python
+  # Check the rows with missing CustomerID to understand the reason
+  ecommerce_retail_update[ecommerce_retail_update['CustomerID'].isna()].head()
+  ```
+  Output
+  |          | InvoiceNo | StockCode | Description                         | Quantity | InvoiceDate           | UnitPrice | CustomerID | Country         | Error |
+  |----------|-----------|----------|-------------------------------------|----------|------------------------|-----------|------------|----------------|-------|
+  |    1443  | 536544    | 21773    | DECORATIVE ROSE BATHROOM BOTTLE    | 1        | 2010-12-01 14:32:00   | 2.51      | <NA>       | United Kingdom | False |
+  |    1444  | 536544    | 21774    | DECORATIVE CATS BATHROOM BOTTLE    | 2        | 2010-12-01 14:32:00   | 2.51      | <NA>       | United Kingdom | False |
+  |    1445  | 536544    | 21786    | POLKADOT RAIN HAT                  | 4        | 2010-12-01 14:32:00   | 0.85      | <NA>       | United Kingdom | False |
+  |    1446  | 536544    | 21787    | RAIN PONCHO RETROSPOT              | 2        | 2010-12-01 14:32:00   | 1.66      | <NA>       | United Kingdom | False |
+  |    1447  | 536544    | 21790    | VINTAGE SNAP CARDS                 | 9        | 2010-12-01 14:32:00   | 1.66      | <NA>       | United Kingdom | False |
+
+
+  ``` python
+  # Create a month column to check for missing values by month
+  ecommerce_retail_update['day'] = ecommerce_retail_update['InvoiceDate'].dt.date
+  ecommerce_retail_update['month'] = ecommerce_retail_update['InvoiceDate'].dt.strftime('%Y-%m')
+  ecommerce_retail_update.head()
+  ```
+  Output
+  |       | InvoiceNo | StockCode | Description                              | Quantity | InvoiceDate           | UnitPrice | CustomerID | Country         | Error | Day         | Month   |
+  |-------|-----------|----------|------------------------------------------|----------|------------------------|-----------|------------|----------------|-------|------------|---------|
+  | 0     | 536365    | 85123A   | WHITE HANGING HEART T-LIGHT HOLDER      | 6        | 2010-12-01 08:26:00   | 2.55      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 1     | 536365    | 71053    | WHITE METAL LANTERN                     | 6        | 2010-12-01 08:26:00   | 3.39      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 2     | 536365    | 84406B   | CREAM CUPID HEARTS COAT HANGER          | 8        | 2010-12-01 08:26:00   | 2.75      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 3     | 536365    | 84029G   | KNITTED UNION FLAG HOT WATER BOTTLE     | 6        | 2010-12-01 08:26:00   | 3.39      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 4     | 536365    | 84029E   | RED WOOLLY HOTTIE WHITE HEART.          | 6        | 2010-12-01 08:26:00   | 3.39      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+
+
+
+  ``` python
+  ecommerce_retail_update[ecommerce_retail_update['CustomerID'].isna()]['month'].value_counts().sort_index()
+  ```
+  Output
+  
+  | Month   | Count  |
+  |---------|--------|
+  | 2010-12 | 15323  |
+  | 2011-01 | 13077  |
+  | 2011-02 | 7178   |
+  | 2011-03 | 8628   |
+  | 2011-04 | 6454   |
+  | 2011-05 | 7844   |
+  | 2011-06 | 8792   |
+  | 2011-07 | 11820  |
+  | 2011-08 | 7476   |
+  | 2011-09 | 9233   |
+  | 2011-10 | 9750   |
+  | 2011-11 | 18838  |
+  | 2011-12 | 7807   |
+  
+  
+  
+  ``` python
+  # Remove missing values in the CustomerID column
+  ecommerce_retail_update = ecommerce_retail_update[ecommerce_retail_update['CustomerID'].notnull()]
+  ecommerce_retail_update.shape
+  ```
+  Output  
+  (397884, 11)
+  
+  
+  
+  ``` python
+  # Create a month column to check for missing values by month
+  ecommerce_retail_update['day'] = ecommerce_retail_update['InvoiceDate'].dt.date
+  ecommerce_retail_update['month'] = ecommerce_retail_update['InvoiceDate'].dt.strftime('%Y-%m')
+  ecommerce_retail_update.head()
+  ```
+  **Nhận xét:**
+
+  - Cột CustomerID có 132220 missing value (chiếm gần 25%)
+  - Tháng nào cũng đều có missing value do đó cần check lại hệ thống hay quy trình lưu trữ data để khắc phục
+  - Customer ID là dữ liệu quan trọng không thể thay thế nên chỉ có thể xóa đi
+</details>  
+
+
+
+</details>  
 
 </details>
+
 2️ Exploratory Data Analysis (EDA)  
 3️ SQL/ Python Analysis 
 
