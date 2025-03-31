@@ -401,13 +401,6 @@ Table 2: Segmentation
   (397884, 11)
   
   
-  
-  ``` python
-  # Create a month column to check for missing values by month
-  ecommerce_retail_update['day'] = ecommerce_retail_update['InvoiceDate'].dt.date
-  ecommerce_retail_update['month'] = ecommerce_retail_update['InvoiceDate'].dt.strftime('%Y-%m')
-  ecommerce_retail_update.head()
-  ```
   **Nhận xét:**
 
   - Cột CustomerID có 132220 missing value (chiếm gần 25%)
@@ -416,8 +409,48 @@ Table 2: Segmentation
 </details>  
 
 
+  <details>
+    <summary> 1.4 Handle duplicate values</summary> 
+     
 
-</details>  
+  ``` python
+  # Check duplicate values
+  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
+  ecommerce_retail_update[duplicates_df].head()
+  ```
+
+
+  ``` python
+  # Check duplicate values
+  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
+  ecommerce_retail_update[duplicates_df].head()
+  ```
+  
+
+  ``` python
+  # Check duplicate values
+  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
+  ecommerce_retail_update[duplicates_df].head()
+  ```
+
+  ``` python
+  # Check duplicate values
+  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
+  ecommerce_retail_update[duplicates_df].head()
+  ```
+
+  ``` python
+  # Check duplicate values
+  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
+  ecommerce_retail_update[duplicates_df].head()
+  ```
+  
+  ``` python
+  # Check duplicate values
+  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
+  ecommerce_retail_update[duplicates_df].head()
+  ```
+  </details>  
 
 </details>
 
