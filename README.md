@@ -489,22 +489,140 @@ Table 2: Segmentation
 
 
 <details>
-  <summary> 2.Data Processing</summary>  
+  <summary> 2. Data Processing</summary>  
   
   ``` python
+  # Create Recency, Frequency, and Monetary variables
+  # Take the last date as the baseline
+  Lastday = ecommerce_retail_update['day'].max()
+  # Create Cost column
+  ecommerce_retail_update['Spend'] = ecommerce_retail_update['Quantity'] * ecommerce_retail_update['UnitPrice']
+  
+  # Calculate the Recency, Frequency, and Monetary values
+  rfm = ecommerce_retail_update.groupby('CustomerID').agg(
+                                                          Recency = ('day', lambda x: -(Lastday - x.max()).days),
+                                                          Frequency =('CustomerID', lambda x: x.count()) ,
+                                                          Monetary = ('Spend', lambda x: x.sum())
+                                                          ).reset_index()
+  
+  # Adjust data types
+  rfm['Frequency'] = rfm['Frequency'].astype('int')
+  rfm.head()
+  ```
+  Output
+  | CustomerID | Recency | Frequency | Monetary |
+  |------------|--------|-----------|----------|
+  | 12346.0    | -325   | 1         | 77183.60 |
+  | 12347.0    | -2     | 182       | 4310.00  |
+  | 12348.0    | -75    | 27        | 1744.44  |
+  | 12349.0    | -18    | 73        | 1757.55  |
+  | 12350.0    | -310   | 17        | 334.40   |
+
+
+
+  ``` python
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  
+  # Create a figure and a set of subplots (1 row, 3 columns)
+  fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+  
+  # Plot the distribution of Recency
+  sns.boxplot(rfm['Recency'], ax=axes[0])
+  axes[0].set_title('Distribution of Recency')
+  
+  # Plot the distribution of Frequency
+  sns.boxplot(rfm['Frequency'], ax=axes[1])
+  axes[1].set_title('Distribution of Frequency')
+  
+  # Plot the distribution of Monetary
+  sns.boxplot(rfm['Monetary'], ax=axes[2])
+  axes[2].set_title('Distribution of Monetary')
+  
+  # Adjust the layout and display the plot
+  plt.tight_layout()
+  plt.show()  
+  ```
+  Output
+  ![image](https://github.com/user-attachments/assets/493b9f16-e185-43d7-9bdb-6447dd0754e1)
+
+
+  
+  ``` python
+ # Remove outliers
+  seventy_fifth = rfm['Recency'].quantile(0.75)
+  twenty_fifth = rfm['Recency'].quantile(0.25)
+  Recency_iqr = seventy_fifth - twenty_fifth
+  Recency_upper = seventy_fifth + (1.5 * Recency_iqr)
+  Recency_lower = twenty_fifth - (1.5 * Recency_iqr)
+  
+  
+  seventy_fifth = rfm['Frequency'].quantile(0.75)
+  twenty_fifth = rfm['Frequency'].quantile(0.25)
+  Frequency_iqr = seventy_fifth - twenty_fifth
+  Frequency_upper = seventy_fifth + (1.5 * Frequency_iqr)
+  Frequency_lower = twenty_fifth - (1.5 * Frequency_iqr)
+  
+  
+  seventy_fifth = rfm['Monetary'].quantile(0.75)
+  twenty_fifth = rfm['Monetary'].quantile(0.25)
+  Monetary_iqr = seventy_fifth - twenty_fifth
+  Monetary_upper = seventy_fifth + (1.5 * Monetary_iqr)
+  Monetary_lower = twenty_fifth - (1.5 * Monetary_iqr)
+  
+  rfm_drop_outliers =rfm[
+                         (rfm['Recency'] > Recency_lower) & (rfm['Recency'] < Recency_upper) &
+                         (rfm['Frequency'] > Frequency_lower) & (rfm['Frequency'] < Frequency_upper) &
+                         (rfm['Monetary'] > Monetary_lower)& (rfm['Monetary'] < Monetary_upper)
+                         ]
+  rfm_drop_outliers.shape
+  ```
+  Output
+  (3612, 4)
+
+   ``` python
+  # Create a figure and a set of subplots (1 row, 3 columns)
+  fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+  
+  # Plot the distribution of Recency
+  sns.boxplot(rfm_drop_outliers['Recency'], ax=axes[0])
+  axes[0].set_title('Distribution of Recency')
+  
+  # Plot the distribution of Frequency
+  sns.boxplot(rfm_drop_outliers['Frequency'], ax=axes[1])
+  axes[1].set_title('Distribution of Frequency')
+  
+  # Plot the distribution of Monetary
+  sns.boxplot(rfm_drop_outliers['Monetary'], ax=axes[2])
+  axes[2].set_title('Distribution of Monetary')
+  
+  # Adjust the layout and display the plot
+  plt.tight_layout()
+  plt.show()
+  ```
+  Output
+  ![image](https://github.com/user-attachments/assets/7e832d60-f203-4403-bc8e-f90596e1c1d1)
+
+
+  
+
+   ``` python
   # Delete duplicate rows and retain only the first instance
   ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
   ```
 
-  ``` python
+   ``` python
   # Delete duplicate rows and retain only the first instance
   ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
   ```
 
-  ``` python
+   ``` python
   # Delete duplicate rows and retain only the first instance
   ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
   ```
+
+
+
 </details>
 
 3️ SQL/ Python Analysis 
