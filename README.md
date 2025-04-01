@@ -31,8 +31,6 @@ This project uses the RFM model to help the Marketing Director segment each cust
 ✔️ Stakeholders  
 
 
-
-
 ---
 
 ## 📂 Dataset Description & Data Structure  
@@ -418,43 +416,97 @@ Table 2: Segmentation
   duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
   ecommerce_retail_update[duplicates_df].head()
   ```
+  Output
+  |       | InvoiceNo | StockCode | Description                           | Quantity | InvoiceDate           | UnitPrice | CustomerID | Country         | Error | Day         | Month   |
+  |-------|-----------|----------|---------------------------------------|----------|------------------------|-----------|------------|----------------|-------|------------|---------|
+  | 125   | 536381    | 71270    | PHOTO CLIP LINE                      | 3        | 2010-12-01 09:41:00   | 1.25      | 15311.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 498   | 536409    | 90199C   | 5 STRAND GLASS NECKLACE CRYSTAL      | 1        | 2010-12-01 11:45:00   | 6.35      | 17908.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 502   | 536409    | 85116    | BLACK CANDELABRA T-LIGHT HOLDER      | 5        | 2010-12-01 11:45:00   | 2.10      | 17908.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 517   | 536409    | 21866    | UNION JACK FLAG LUGGAGE TAG          | 1        | 2010-12-01 11:45:00   | 1.25      | 17908.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 525   | 536409    | 90199C   | 5 STRAND GLASS NECKLACE CRYSTAL      | 2        | 2010-12-01 11:45:00   | 6.35      | 17908.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
 
 
   ``` python
-  # Check duplicate values
-  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
-  ecommerce_retail_update[duplicates_df].head()
+  # Check specific InvoiceNos that are duplicated
+  ecommerce_retail_update[(ecommerce_retail_update['InvoiceNo'] == '536381') & (ecommerce_retail_update['StockCode'] == '71270')]
   ```
+  Output
+  |       | InvoiceNo | StockCode | Description       | Quantity | InvoiceDate           | UnitPrice | CustomerID | Country         | Error | Day         | Month   |
+  |-------|-----------|----------|-------------------|----------|------------------------|-----------|------------|----------------|-------|------------|---------|
+  | 113   | 536381    | 71270    | PHOTO CLIP LINE  | 1        | 2010-12-01 09:41:00   | 1.25      | 15311.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 125   | 536381    | 71270    | PHOTO CLIP LINE  | 3        | 2010-12-01 09:41:00   | 1.25      | 15311.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+
   
 
   ``` python
-  # Check duplicate values
-  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
-  ecommerce_retail_update[duplicates_df].head()
+  ecommerce_retail_update[(ecommerce_retail_update['InvoiceNo'] == '581538') & (ecommerce_retail_update['StockCode'] == '22992')]
   ```
+  Output
+  |        | InvoiceNo | StockCode | Description            | Quantity | InvoiceDate           | UnitPrice | CustomerID | Country         | Error | Day         | Month   |
+  |--------|-----------|----------|------------------------|----------|------------------------|-----------|------------|----------------|-------|------------|---------|
+  | 541640 | 581538    | 22992    | REVOLVER WOODEN RULER  | 1        | 2011-12-09 11:34:00   | 1.95      | 14446.0    | United Kingdom | False | 2011-12-09 | 2011-12 |
+  | 541692 | 581538    | 22992    | REVOLVER WOODEN RULER  | 1        | 2011-12-09 11:34:00   | 1.95      | 14446.0    | United Kingdom | False | 2011-12-09 | 2011-12 |
+
 
   ``` python
-  # Check duplicate values
-  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
-  ecommerce_retail_update[duplicates_df].head()
-  ```
-
-  ``` python
-  # Check duplicate values
-  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
-  ecommerce_retail_update[duplicates_df].head()
+  # Retain the last instance of a row if duplicates exist with varying quantities
+  ecommerce_retail_update = ecommerce_retail_update.drop_duplicates( subset=['InvoiceNo', 'StockCode', 'InvoiceDate', 'CustomerID'], keep='last')
   ```
   
   ``` python
-  # Check duplicate values
-  duplicates_df= ecommerce_retail_update.duplicated(subset=['InvoiceNo','StockCode','InvoiceDate','CustomerID'])
-  ecommerce_retail_update[duplicates_df].head()
+  # Delete duplicate rows and retain only the first instance
+  ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
   ```
+
+
+  ``` python
+  ecommerce_retail_update
+  ```
+  Output
+  |        | InvoiceNo | StockCode | Description                               | Quantity | InvoiceDate           | UnitPrice | CustomerID | Country         | Error | Day         | Month   |
+  |--------|-----------|----------|-------------------------------------------|----------|------------------------|-----------|------------|----------------|-------|------------|---------|
+  | 0      | 536365    | 85123A   | WHITE HANGING HEART T-LIGHT HOLDER       | 6        | 2010-12-01 08:26:00   | 2.55      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 1      | 536365    | 71053    | WHITE METAL LANTERN                      | 6        | 2010-12-01 08:26:00   | 3.39      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 2      | 536365    | 84406B   | CREAM CUPID HEARTS COAT HANGER           | 8        | 2010-12-01 08:26:00   | 2.75      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 3      | 536365    | 84029G   | KNITTED UNION FLAG HOT WATER BOTTLE      | 6        | 2010-12-01 08:26:00   | 3.39      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | 4      | 536365    | 84029E   | RED WOOLLY HOTTIE WHITE HEART.           | 6        | 2010-12-01 08:26:00   | 3.39      | 17850.0    | United Kingdom | False | 2010-12-01 | 2010-12 |
+  | ...    | ...       | ...      | ...                                       | ...      | ...                    | ...       | ...        | ...            | ...   | ...        | ...     |
+  | 541904 | 581587    | 22613    | PACK OF 20 SPACEBOY NAPKINS              | 12       | 2011-12-09 12:50:00   | 0.85      | 12680.0    | France         | False | 2011-12-09 | 2011-12 |
+  | 541905 | 581587    | 22899    | CHILDREN'S APRON DOLLY GIRL              | 6        | 2011-12-09 12:50:00   | 2.10      | 12680.0    | France         | False | 2011-12-09 | 2011-12 |
+  | 541906 | 581587    | 23254    | CHILDRENS CUTLERY DOLLY GIRL             | 4        | 2011-12-09 12:50:00   | 4.15      | 12680.0    | France         | False | 2011-12-09 | 2011-12 |
+  | 541907 | 581587    | 23255    | CHILDRENS CUTLERY CIRCUS PARADE          | 4        | 2011-12-09 12:50:00   | 4.15      | 12680.0    | France         | False | 2011-12-09 | 2011-12 |
+  | 541908 | 581587    | 22138    | BAKING SET 9 PIECE RETROSPOT             | 3        | 2011-12-09 12:50:00   | 4.95      | 12680.0    | France         | False | 2011-12-09 | 2011-12 |
+
+  **Nhận xét:**
+  - Có 10038 hàng bị duplicated
+  - 2 hàng chỉ khác nhau về Quantity nguyên nhân đến từ việc ngay sau khi đặt hàng KH đã bấm thay đổi số lượng nhưng do hệ thống bị lỗi hay xảy ra vấn đề nên đã lưu thành 2 đơn hàng
+  - 2 hàng giống nhau hoàn toàn nguyên nhân do hệ thống bị lỗi nên dữ liệu đã bị duplicated
+
   </details>  
-
 </details>
 
-2️ Exploratory Data Analysis (EDA)  
+
+
+
+<details>
+  <summary> 2.Data Processing</summary>  
+  
+  ``` python
+  # Delete duplicate rows and retain only the first instance
+  ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
+  ```
+
+  ``` python
+  # Delete duplicate rows and retain only the first instance
+  ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
+  ```
+
+  ``` python
+  # Delete duplicate rows and retain only the first instance
+  ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
+  ```
+</details>
+
 3️ SQL/ Python Analysis 
 
 - First, explain codes' purpose - what they do
