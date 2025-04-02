@@ -883,13 +883,13 @@ Table 2: Segmentation
 ## 🔎 Final Conclusion & Recommendations  
 
 👉🏻 Based on the insights and findings above, we would recommend the [stakeholder team] to consider the following:  
-    - The largest customer segments are Hibernating Customers (17%), Champions (15%), Potential Loyalists (13%), and At-Risk customers (12%).
-    - The Recency metric indicates that customers tend to return to purchase more frequently in October and November, with a significant increase in new customers.
-    - The Frequency metric shows that most customer segments have a declining purchase frequency over time, which is a concerning trend.
-    - The Monetary metric reveals that revenue mainly comes from the Champions, Loyal, and Potential Loyal segments, with a sharp increase in September, October, and November.
-    
+    - The largest customer segments are Hibernating Customers (17%), Champions (15%), Potential Loyalists (13%), and At-Risk customers (12%).   
+    - The Recency metric indicates that customers tend to return to purchase more frequently in October and November, with a significant increase in new customers.   
+    - The Frequency metric shows that most customer segments have a declining purchase frequency over time, which is a concerning trend.   
+    - The Monetary metric reveals that revenue mainly comes from the Champions, Loyal, and Potential Loyal segments, with a sharp increase in September, October, and November.    
+     
 📌 Key Takeaways:  
-✔️ The proportion of Hibernating and At-risk customers is relatively high. The company should conduct calls and surveys to understand why these customers are purchasing less. Based on the findings, the company can implement corrective actions and introduce attractive promotions to encourage these segments to return. 
-✔️ Customers tend to shop more in September, October, and November, as they prepare for Christmas and New Year by decorating their homes and purchasing essential items. This is an ideal period for the company to attract and convert customers through high-quality products, appealing vouchers, and excellent service.
-✔️ Analyze the reasons behind the decline in purchase frequency among customer segments and improve marketing campaigns as well as exclusive programs for loyal customers.
-✔️ The company should focus on the Recency metric, as it reflects business performance and the effectiveness of marketing campaigns. This insight can help develop strategies to increase customer acquisition and retention.
+✔️ The proportion of Hibernating and At-risk customers is relatively high. The company should conduct calls and surveys to understand why these customers are purchasing less. Based on the findings, the company can implement corrective actions and introduce attractive promotions to encourage these segments to return.      
+✔️ Customers tend to shop more in September, October, and November, as they prepare for Christmas and New Year by decorating their homes and purchasing essential items. This is an ideal period for the company to attract and convert customers through high-quality products, appealing vouchers, and excellent service.    
+✔️ Analyze the reasons behind the decline in purchase frequency among customer segments and improve marketing campaigns as well as exclusive programs for loyal customers.     
+✔️ The company should focus on the Recency metric, as it reflects business performance and the effectiveness of marketing campaigns. This insight can help develop strategies to increase customer acquisition and retention.      
