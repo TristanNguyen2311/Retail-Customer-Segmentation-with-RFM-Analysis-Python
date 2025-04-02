@@ -549,7 +549,7 @@ Table 2: Segmentation
 
   
   ``` python
- # Remove outliers
+  # Remove outliers
   seventy_fifth = rfm['Recency'].quantile(0.75)
   twenty_fifth = rfm['Recency'].quantile(0.25)
   Recency_iqr = seventy_fifth - twenty_fifth
@@ -580,7 +580,10 @@ Table 2: Segmentation
   Output
   (3612, 4)
 
-   ``` python
+
+
+
+  ``` python
   # Create a figure and a set of subplots (1 row, 3 columns)
   fig, axes = plt.subplots(1, 3, figsize=(15, 5))
   
@@ -606,24 +609,104 @@ Table 2: Segmentation
 
   
 
-   ``` python
-  # Delete duplicate rows and retain only the first instance
-  ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
+  ``` python
+  # Use qcut to create R, M, F
+  rfm_drop_outliers['R'] = pd.qcut(rfm_drop_outliers['Recency'], 5, labels=range(1,6)).astype(str)
+  rfm_drop_outliers['F'] = pd.qcut(rfm_drop_outliers['Frequency'], 5, labels=range(1,6)).astype(str)
+  rfm_drop_outliers['M'] = pd.qcut(rfm_drop_outliers['Monetary'], 5, labels=range(1,6)).astype(str)
+  rfm_drop_outliers['RFM'] = rfm_drop_outliers['R'] + rfm_drop_outliers['F'] + rfm_drop_outliers['M']
+  rfm_drop_outliers.head()
   ```
-
-   ``` python
-  # Delete duplicate rows and retain only the first instance
-  ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
+  Output
+  |       | CustomerID | Recency | Frequency | Monetary | R | F | M | RFM |
+  |-------|------------|--------|-----------|----------|---|---|---|-----|
+  | 2     | 12348.0    | -75    | 27        | 1744.44  | 2 | 3 | 5 | 235 |
+  | 3     | 12349.0    | -18    | 73        | 1757.55  | 4 | 4 | 5 | 445 |
+  | 4     | 12350.0    | -310   | 17        | 334.40   | 1 | 2 | 2 | 122 |
+  | 5     | 12352.0    | -36    | 83        | 1849.49  | 4 | 4 | 5 | 445 |
+  | 6     | 12353.0    | -204   | 4         | 89.00    | 1 | 1 | 1 | 111 |
+  
+  
+  
+  ``` python
+  # Load data segmentation
+  segmentation = pd.read_csv(path + '/segmentation.csv')
+  segmentation.head()
   ```
+  Output
+  |       | Segment              | RFM Score                                          |
+  |-------|----------------------|----------------------------------------------------|
+  | 0     | Champions            | 555, 554, 544, 545, 454, 455, 445                  |
+  | 1     | Loyal                | 543, 444, 435, 355, 354, 345, 344, 335             |
+  | 2     | Potential Loyalist   | 553, 551, 552, 541, 542, 533, 532, 531, 452, ...   |
+  | 3     | New Customers        | 512, 511, 422, 421, 412, 411, 311                  |
+  | 4     | Promising            | 525, 524, 523, 522, 521, 515, 514, 513, 425, ...   |
 
-   ``` python
-  # Delete duplicate rows and retain only the first instance
-  ecommerce_retail_update = ecommerce_retail_update.drop_duplicates(keep='first')
+
+  
+
+  ``` python
+  segmentation['RFM Score']= segmentation['RFM Score'].astype('string').str.split(',')
+  segmentation = segmentation.explode('RFM Score')
+  segmentation['RFM Score'] = segmentation['RFM Score'].apply(lambda x: x.replace(' ',''))
+  segmentation.head()
   ```
+  Output
+  | Segment   | RFM Score |
+  |---------- |-----------|
+  | Champions | 555       |
+  | Champions | 554       |
+  | Champions | 544       |
+  | Champions | 545       |
+  | Champions | 454       |
 
 
+  ``` python
+  # Merge segmentation
+  final_rfm = rfm_drop_outliers.merge(segmentation, left_on='RFM', right_on='RFM Score', how='left')
+  final_rfm.head()
+  ```
+  Output
+  | Index | CustomerID | Recency | Frequency | Monetary | R | F | M | RFM | Segment               | RFM Score |
+  |-------|------------|--------|-----------|----------|---|---|---|-----|-----------------------|-----------|
+  | 0     | 12348.0    | -75    | 27        | 1744.44  | 2 | 3 | 5 | 235 | At Risk               | 235       |
+  | 1     | 12349.0    | -18    | 73        | 1757.55  | 4 | 4 | 5 | 445 | Champions             | 445       |
+  | 2     | 12350.0    | -310   | 17        | 334.40   | 1 | 2 | 2 | 122 | Hibernating customers | 122       |
+  | 3     | 12352.0    | -36    | 83        | 1849.49  | 4 | 4 | 5 | 445 | Champions             | 445       |
+  | 4     | 12353.0    | -204   | 4         | 89.00    | 1 | 1 | 1 | 111 | Lost customers        | 111       |
+
+  **Mô tả quá trình:**
+  - Tính Recency, Frequency và Monetary của từng khách hàng
+  - Loại bỏ Outliers
+  - Chia Recency, Frequency và Monetary thành 5 phân vị từ đó tính được điểm RFM của từng khách hàng
+  - Load file segmentation
+  - Kết hợp bảng rfm_drop_outliers và bảng segmentation bằng điểm RFM để phân loại khách hàng theo từng CustormerID
 
 </details>
+
+     ``` python
+  segmentation['RFM Score']= segmentation['RFM Score'].astype('string').str.split(',')
+  segmentation = segmentation.explode('RFM Score')
+  segmentation['RFM Score'] = segmentation['RFM Score'].apply(lambda x: x.replace(' ',''))
+  segmentation.head()
+  ```
+
+
+     ``` python
+  segmentation['RFM Score']= segmentation['RFM Score'].astype('string').str.split(',')
+  segmentation = segmentation.explode('RFM Score')
+  segmentation['RFM Score'] = segmentation['RFM Score'].apply(lambda x: x.replace(' ',''))
+  segmentation.head()
+  ```
+
+
+     ``` python
+  segmentation['RFM Score']= segmentation['RFM Score'].astype('string').str.split(',')
+  segmentation = segmentation.explode('RFM Score')
+  segmentation['RFM Score'] = segmentation['RFM Score'].apply(lambda x: x.replace(' ',''))
+  segmentation.head()
+  ```
+
 
 3️ SQL/ Python Analysis 
 
