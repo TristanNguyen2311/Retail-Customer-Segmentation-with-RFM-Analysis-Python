@@ -684,41 +684,201 @@ Table 2: Segmentation
 
 </details>
 
-     ``` python
-  segmentation['RFM Score']= segmentation['RFM Score'].astype('string').str.split(',')
-  segmentation = segmentation.explode('RFM Score')
-  segmentation['RFM Score'] = segmentation['RFM Score'].apply(lambda x: x.replace(' ',''))
-  segmentation.head()
-  ```
 
-
-     ``` python
-  segmentation['RFM Score']= segmentation['RFM Score'].astype('string').str.split(',')
-  segmentation = segmentation.explode('RFM Score')
-  segmentation['RFM Score'] = segmentation['RFM Score'].apply(lambda x: x.replace(' ',''))
-  segmentation.head()
-  ```
-
-
-     ``` python
-  segmentation['RFM Score']= segmentation['RFM Score'].astype('string').str.split(',')
-  segmentation = segmentation.explode('RFM Score')
-  segmentation['RFM Score'] = segmentation['RFM Score'].apply(lambda x: x.replace(' ',''))
-  segmentation.head()
-  ```
-
-
-3️ SQL/ Python Analysis 
-
-- First, explain codes' purpose - what they do
-
-- Then how your query/ code & Insert screenshots of your result
-
-- Finally, explain your observations/ findings from the results  ts findings
+<details>
+  <summary> 3. Visualization</summary>  
   
- _Describe trends, key metrics, and patterns._  
+  <details>
+    <summary> 3.1 Overall the distribution of the RFM Modelling</summary> 
+    
+  ``` python
+  import matplotlib.pyplot as plt
+  !pip install squarify
+  import squarify
+  ```
 
----
+  ``` python
+  # Create a function for wrapping text
+  import textwrap
+  def wrap_text(text, width=12):  # Adjust width
+    return "\n".join(textwrap.wrap(text, width=width))
+  ```
+
+  ``` python
+    Custom_colors = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b']
+  ```
+
+  ``` python
+  # Users by segment
+  segment_usercnt = final_rfm[['Segment','CustomerID']].groupby(['Segment']).count().reset_index().rename(columns={'CustomerID':'user_cnt'})
+  # Percentage of users by segment
+  segment_usercnt['volumn_percent'] = ((segment_usercnt['user_cnt']/segment_usercnt['user_cnt'].sum())*100).round(0)
+  segment_usercnt['Segment'] = segment_usercnt['Segment'] + ' ' + segment_usercnt['volumn_percent'].astype(int).astype(str) + '%'
+  segment_usercnt
+  ```
+  Output
+  |       | Segment                          | User Count | Volume Percent (%) |
+  |-------|-------------------------------   |------------|--------------------|
+  | 0     | About To Sleep 4%                | 144        | 4.0                |
+  | 1     | At Risk 12%                      | 428        | 12.0               |
+  | 2     | Cannot Lose Them 3%              | 107        | 3.0                |
+  | 3     | Champions 15%                    | 549        | 15.0               |
+  | 4     | Hibernating customers 17%        | 612        | 17.0               |
+  | 5     | Lost customers 9%                | 324        | 9.0                |
+  | 6     | Loyal 10%                        | 345        | 10.0               |
+  | 7     | Need Attention 5%                | 183        | 5.0                |
+  | 8     | New Customers 8%                 | 298        | 8.0                |
+  | 9     | Potential Loyalist 13%           | 471        | 13.0               |
+  | 10    | Promising 4%                     | 151        | 4.0                |
+      
+  ``` python
+  # Calculate the average values
+  rfm_score_means = final_rfm.groupby('RFM Score').agg({
+                                                        'Recency':'mean',
+                                                        'Frequency':'mean',
+                                                        'Monetary':'mean'
+                                                        }).reset_index()
+
+  rfm_score_means.head()
+  ```
+  Output
+  |       | RFM Score | Recency       | Frequency   | Monetary    |
+  | ----- | --------- | ------------- | ----------- | ----------- |
+  | 0     | 111       | -251.89       | 6.78        | 131.32      |
+  | 1     | 112       | -242.09       | 8.35        | 308.37      |
+  | 2     | 113       | -261.33       | 6.13        | 573.64      |
+  | 3     | 114       | -219.17       | 7.25        | 931.02      |
+  | 4     | 115       | -239.67       | 5.33        | 2292.90     |
+
+  ``` python
+  # Create subplots for each metric
+  fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+  
+  # Plot histograms for each metric
+  sns.histplot(rfm_score_means['Recency'], ax=axes[0], bins=10, kde=True)
+  axes[0].set_title('Distribution of Recency')
+  axes[0].set_xlabel('Recency')
+  axes[0].set_ylabel('Custormers')
+  
+  sns.histplot(rfm_score_means['Frequency'], ax=axes[1], bins=10, kde=True)
+  axes[1].set_title('Distribution of Frequency')
+  axes[1].set_xlabel('Frequency')
+  axes[1].set_ylabel('Custormers')
+  
+  sns.histplot(rfm_score_means['Monetary'], ax=axes[2], bins=10, kde=True)
+  axes[2].set_title('Distribution of Monetary')
+  axes[2].set_xlabel('Monetary')
+  axes[2].set_ylabel('Custormers')
+  
+  # Adjust layout and display the plot
+  plt.tight_layout()
+  plt.show()
+  ```
+  Output
+  ![image](https://github.com/user-attachments/assets/ea53fd5b-fe6e-48bb-ad7a-5f959e60f585)
+
+
+  
+  ``` python
+  # Use the text wrapping function to the Segment column
+  segment_usercnt['Segment_wrapped'] = segment_usercnt['Segment'].apply(wrap_text)
+  
+  # Create treemap
+  squarify.plot(sizes=segment_usercnt['user_cnt'], label=segment_usercnt['Segment_wrapped'], color=Custom_colors, alpha=0.8,text_kwargs={'fontsize': 7})
+  plt.axis('off')
+  plt.show()
+  ```
+  Output
+  ![image](https://github.com/user-attachments/assets/071413cd-1488-4ca7-ae01-f04f709c877b)
+
+  </details>
+
+
+  <details>
+    <summary> 3.2 Distribution of RFM Modelling by time</summary>
+    
+  ``` python
+  # Segment user by time
+  rmf_customer_month = pd.merge(final_rfm, ecommerce_retail_update[['CustomerID','month']], on='CustomerID', how='left')
+  rmf_customer_month = rmf_customer_month.groupby(['month','Segment']).agg({'CustomerID':'count'}).reset_index().rename(columns={'CustomerID':'user_cnt'})
+  rmf_customer_month = rmf_customer_month.pivot_table(values='user_cnt', index='month', columns='Segment', fill_value =0)
+  
+  # Create area chart
+  customer_month = rmf_customer_month.plot(kind='area', stacked=True, color=Custom_colors) # Rotate x-axis labels for better readability
+  plt.tight_layout() # Adjust layout to prevent overlapping
+  customer_month.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', ncol=2)
+  plt.xlabel("Month")
+  plt.ylabel("Number of Customers")
+  plt.title("Customer Segmentation by Month")
+  plt.show()
+  ```
+  Output
+  ![image](https://github.com/user-attachments/assets/7f9db91e-cec2-487e-9743-94e5e079b759)
+
+
+  
+  ``` python
+  # Segment recency by time
+  rmf_recency_month = pd.merge(final_rfm, ecommerce_retail_update[['CustomerID','month']], on='CustomerID', how='left')
+  rmf_recency_month = rmf_recency_month.groupby(['month','Segment']).agg({'Recency':'mean'}).reset_index()
+  rmf_recency_month = rmf_recency_month.pivot_table(values='Recency', index='month', columns='Segment', fill_value =0)
+  
+  # Create area chart
+  recency_month = rmf_recency_month.plot(kind='area', stacked=True, color=Custom_colors)
+  plt.tight_layout() # Adjust layout to prevent overlapping
+  recency_month.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', ncol=2)
+  plt.xlabel("Month")
+  plt.ylabel("Average Recency (Days)")
+  plt.title("Average Recency by Customer Segment Over Time")
+  plt.show()
+  ```
+  Output
+  ![image](https://github.com/user-attachments/assets/b0d14863-731f-4b16-b195-55ad6cbf3355)
+
+
+  
+  ``` python
+  # Segment frequency by time
+  rmf_frequency_month = pd.merge(final_rfm, ecommerce_retail_update[['CustomerID','month']], on='CustomerID', how='left')
+  rmf_frequency_month = rmf_frequency_month.groupby(['month','Segment']).agg({'Frequency':'mean'}).reset_index()
+  rmf_frequency_month = rmf_frequency_month.pivot_table(values='Frequency', index='month', columns='Segment', fill_value =0)
+  
+  # Create area chart
+  frequency_month = rmf_frequency_month.plot(kind='area', stacked=True, color=Custom_colors)
+  plt.tight_layout() # Adjust layout to prevent overlapping
+  frequency_month.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', ncol=2)
+  plt.xlabel("Month")
+  plt.ylabel("Average Frequency")
+  plt.title("Average Frequency by Customer Segment Over Time")
+  plt.show()
+  ```
+  Output
+  ![image](https://github.com/user-attachments/assets/b4b81b39-346a-4783-9229-26fe5c3b7db6)
+
+
+  
+  ``` python
+  # Segment monetary by time
+  rmf_monetary_month = pd.merge(final_rfm, ecommerce_retail_update[['CustomerID','month']], on='CustomerID', how='left')
+  rmf_monetary_month = rmf_monetary_month.groupby(['month','Segment']).agg({'Monetary':'sum'}).reset_index()
+  rmf_monetary_month = rmf_monetary_month.pivot_table(values='Monetary', index='month', columns='Segment', fill_value =0)
+  
+  # Create area chart
+  monetary_month = rmf_monetary_month.plot(kind='area', stacked=True, color=Custom_colors)
+  plt.ticklabel_format(axis='y', style='plain')
+  plt.tight_layout() # Adjust layout to prevent overlapping
+  monetary_month.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', ncol=2)
+  plt.xlabel("Month")
+  plt.ylabel("Total Monetary")
+  plt.title("Total Monetary by Customer Segment Over Time")
+  plt.show()
+  ```
+  Output
+  ![image](https://github.com/user-attachments/assets/26acd8f9-2f1e-4632-9ebd-c0c56f000495)
+
+  </details>
+</details>    
+
 
 ## 🔎 Final Conclusion & Recommendations  
 
