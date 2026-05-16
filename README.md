@@ -4,7 +4,7 @@
 
 # 📊 Project Title: Retail Customer Segmentation With RFM Analysis (Python)
 Author: Nguyễn Văn Trí  
-Date: 2025-01-09
+
 
 
 ---
