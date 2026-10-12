@@ -500,10 +500,10 @@ Table 2: Segmentation
   
   # Calculate the Recency, Frequency, and Monetary values
   rfm = ecommerce_retail_update.groupby('CustomerID').agg(
-                                                          Recency = ('day', lambda x: -(Lastday - x.max()).days),
-                                                          Frequency =('CustomerID', lambda x: x.count()) ,
-                                                          Monetary = ('Spend', lambda x: x.sum())
-                                                          ).reset_index()
+                                                        Recency = ('day', lambda x: (Lastday - x.max()).days),
+                                                        Frequency = ('InvoiceNo', 'nunique') ,
+                                                        Monetary = ('Spend', 'sum')
+                                                        ).reset_index()
   
   # Adjust data types
   rfm['Frequency'] = rfm['Frequency'].astype('int')
@@ -512,11 +512,11 @@ Table 2: Segmentation
   Output
   | CustomerID | Recency | Frequency | Monetary |
   |------------|--------|-----------|----------|
-  | 12346.0    | -325   | 1         | 77183.60 |
-  | 12347.0    | -2     | 182       | 4310.00  |
-  | 12348.0    | -75    | 27        | 1744.44  |
-  | 12349.0    | -18    | 73        | 1757.55  |
-  | 12350.0    | -310   | 17        | 334.40   |
+  | 12346.0    | 325   | 1         | 77183.60 |
+  | 12347.0    | 2     | 7       | 4310.00  |
+  | 12348.0    | 75    | 4        | 1744.44  |
+  | 12349.0    | 18    | 1        | 1757.55  |
+  | 12350.0    | 310   | 1        | 334.40   |
 
 
 
@@ -544,87 +544,36 @@ Table 2: Segmentation
   plt.show()  
   ```
   Output
-  ![image](https://github.com/user-attachments/assets/493b9f16-e185-43d7-9bdb-6447dd0754e1)
-
-
-  
-  ``` python
-  # Remove outliers
-  seventy_fifth = rfm['Recency'].quantile(0.75)
-  twenty_fifth = rfm['Recency'].quantile(0.25)
-  Recency_iqr = seventy_fifth - twenty_fifth
-  Recency_upper = seventy_fifth + (1.5 * Recency_iqr)
-  Recency_lower = twenty_fifth - (1.5 * Recency_iqr)
-  
-  
-  seventy_fifth = rfm['Frequency'].quantile(0.75)
-  twenty_fifth = rfm['Frequency'].quantile(0.25)
-  Frequency_iqr = seventy_fifth - twenty_fifth
-  Frequency_upper = seventy_fifth + (1.5 * Frequency_iqr)
-  Frequency_lower = twenty_fifth - (1.5 * Frequency_iqr)
-  
-  
-  seventy_fifth = rfm['Monetary'].quantile(0.75)
-  twenty_fifth = rfm['Monetary'].quantile(0.25)
-  Monetary_iqr = seventy_fifth - twenty_fifth
-  Monetary_upper = seventy_fifth + (1.5 * Monetary_iqr)
-  Monetary_lower = twenty_fifth - (1.5 * Monetary_iqr)
-  
-  rfm_drop_outliers =rfm[
-                         (rfm['Recency'] > Recency_lower) & (rfm['Recency'] < Recency_upper) &
-                         (rfm['Frequency'] > Frequency_lower) & (rfm['Frequency'] < Frequency_upper) &
-                         (rfm['Monetary'] > Monetary_lower)& (rfm['Monetary'] < Monetary_upper)
-                         ]
-  rfm_drop_outliers.shape
-  ```
-  Output
-  (3612, 4)
-
+  <img width="1666" height="558" alt="image" src="https://github.com/user-attachments/assets/fff529f5-27ac-4fa2-b1a5-a5c95dc93b4a" />
 
 
 
   ``` python
-  # Create a figure and a set of subplots (1 row, 3 columns)
-  fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+  # Use qcut to create R, F, M
+  rfm['R'] = pd.qcut(rfm['Recency'], 5, labels=range(5,0,-1)).astype(str)
   
-  # Plot the distribution of Recency
-  sns.boxplot(rfm_drop_outliers['Recency'], ax=axes[0])
-  axes[0].set_title('Distribution of Recency')
+  rfm['F'] = pd.cut( rfm['Frequency'],
+      bins=[0, 1, 2, 4, 7, float('inf')],
+      labels=[1, 2, 3, 4, 5]
+  ).astype(str)
   
-  # Plot the distribution of Frequency
-  sns.boxplot(rfm_drop_outliers['Frequency'], ax=axes[1])
-  axes[1].set_title('Distribution of Frequency')
-  
-  # Plot the distribution of Monetary
-  sns.boxplot(rfm_drop_outliers['Monetary'], ax=axes[2])
-  axes[2].set_title('Distribution of Monetary')
-  
-  # Adjust the layout and display the plot
-  plt.tight_layout()
-  plt.show()
+  rfm['M'] = pd.qcut(rfm['Monetary'], 5, labels=range(1,6)).astype(str)
+  rfm['RFM'] = rfm['R'] + rfm['F'] + rfm['M']
+  rfm.head()
   ```
   Output
-  ![image](https://github.com/user-attachments/assets/7e832d60-f203-4403-bc8e-f90596e1c1d1)
+
+  |       | CustomerID | Recency | Frequency | Monetary | RFM Score |
+  |-------|------------|---------|-----------|----------|-----------|
+  | 0     | 12346      | 325     | 1         | 77183.60 | 115       |
+  | 1     | 12347      | 2       | 7         | 4310.00  | 545       |
+  | 2     | 12348      | 75      | 4         | 1744.44  | 234       |
+  | 3     | 12349      | 18      | 1         | 1757.55  | 414       |
+  | 4     | 12350      | 310     | 1         | 334.40   | 112       |
+   
 
 
-  
 
-  ``` python
-  # Use qcut to create R, M, F
-  rfm_drop_outliers['R'] = pd.qcut(rfm_drop_outliers['Recency'], 5, labels=range(1,6)).astype(str)
-  rfm_drop_outliers['F'] = pd.qcut(rfm_drop_outliers['Frequency'], 5, labels=range(1,6)).astype(str)
-  rfm_drop_outliers['M'] = pd.qcut(rfm_drop_outliers['Monetary'], 5, labels=range(1,6)).astype(str)
-  rfm_drop_outliers['RFM'] = rfm_drop_outliers['R'] + rfm_drop_outliers['F'] + rfm_drop_outliers['M']
-  rfm_drop_outliers.head()
-  ```
-  Output
-  |       | CustomerID | Recency | Frequency | Monetary | R | F | M | RFM |
-  |-------|------------|--------|-----------|----------|---|---|---|-----|
-  | 2     | 12348.0    | -75    | 27        | 1744.44  | 2 | 3 | 5 | 235 |
-  | 3     | 12349.0    | -18    | 73        | 1757.55  | 4 | 4 | 5 | 445 |
-  | 4     | 12350.0    | -310   | 17        | 334.40   | 1 | 2 | 2 | 122 |
-  | 5     | 12352.0    | -36    | 83        | 1849.49  | 4 | 4 | 5 | 445 |
-  | 6     | 12353.0    | -204   | 4         | 89.00    | 1 | 1 | 1 | 111 |
   
   
   
@@ -676,11 +625,10 @@ Table 2: Segmentation
   | 4     | 12353.0    | -204   | 4         | 89.00    | 1 | 1 | 1 | 111 | Lost customers        | 111       |
 
   **Mô tả quá trình:**
-  - Tính Recency, Frequency và Monetary của từng khách hàng
-  - Loại bỏ Outliers
-  - Chia Recency, Frequency và Monetary thành 5 phân vị từ đó tính được điểm RFM của từng khách hàng
-  - Load file segmentation
-  - Kết hợp bảng rfm_drop_outliers và bảng segmentation bằng điểm RFM để phân loại khách hàng theo từng CustormerID
+  - Tính Recency, Frequency và Monetary của từng khách hàng.
+  - Chia Recency, Frequency và Monetary thành 5 phân vị từ đó tính được điểm RFM của từng khách hàng.
+  - Load file segmentation.
+  - Kết hợp bảng rfm và bảng segmentation bằng điểm RFM để phân loại khách hàng theo từng CustormerID.
 
 </details>
 
@@ -742,13 +690,16 @@ Table 2: Segmentation
   rfm_score_means.head()
   ```
   Output
-  |       | RFM Score | Recency       | Frequency   | Monetary    |
-  | ----- | --------- | ------------- | ----------- | ----------- |
-  | 0     | 111       | -251.89       | 6.78        | 131.32      |
-  | 1     | 112       | -242.09       | 8.35        | 308.37      |
-  | 2     | 113       | -261.33       | 6.13        | 573.64      |
-  | 3     | 114       | -219.17       | 7.25        | 931.02      |
-  | 4     | 115       | -239.67       | 5.33        | 2292.90     |
+
+  |       | RFM Score | Recency   | Frequency | Monetary     |
+  |-------|-----------|-----------|-----------|--------------|
+  | 0     | 111       | 281.926829 | 1.0       | 144.334817   |
+  | 1     | 112       | 277.730769 | 1.0       | 345.109567   |
+  | 2     | 113       | 273.912281 | 1.0       | 627.202456   |
+  | 3     | 114       | 271.863636 | 1.0       | 1341.219545  |
+  | 4     | 115       | 294.000000 | 1.0       | 21277.557500 |
+
+  
 
   ``` python
   # Create subplots for each metric
@@ -775,7 +726,8 @@ Table 2: Segmentation
   plt.show()
   ```
   Output
-  ![image](https://github.com/user-attachments/assets/ea53fd5b-fe6e-48bb-ad7a-5f959e60f585)
+  <img width="1667" height="560" alt="image" src="https://github.com/user-attachments/assets/a55604b7-9771-4afd-920f-b5aa661c57a2" />
+
 
 
   
@@ -789,6 +741,7 @@ Table 2: Segmentation
   plt.show()
   ```
   Output
+  
   ![image](https://github.com/user-attachments/assets/071413cd-1488-4ca7-ae01-f04f709c877b)
 
   </details>
