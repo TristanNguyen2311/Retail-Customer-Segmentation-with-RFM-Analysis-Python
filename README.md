@@ -753,81 +753,68 @@ Table 2: Segmentation
   ``` python
   # Segment user by time
   rmf_customer_month = pd.merge(final_rfm, ecommerce_retail_update[['CustomerID','month']], on='CustomerID', how='left')
-  rmf_customer_month = rmf_customer_month.groupby(['month','Segment']).agg({'CustomerID':'count'}).reset_index().rename(columns={'CustomerID':'user_cnt'})
-  rmf_customer_month = rmf_customer_month.pivot_table(values='user_cnt', index='month', columns='Segment', fill_value =0)
+  rmf_customer_month = rmf_customer_month.groupby(['month','Segment']).agg({'CustomerID':'nunique'}).reset_index().rename(columns={'CustomerID':'user_cnt'})
+  rmf_customer_month = rmf_customer_month.pivot_table(values='user_cnt', index='month', columns='Segment', fill_value=0)
   
   # Create area chart
-  customer_month = rmf_customer_month.plot(kind='area', stacked=True, color=Custom_colors) # Rotate x-axis labels for better readability
-  plt.tight_layout() # Adjust layout to prevent overlapping
+  customer_month = rmf_customer_month.plot(kind='area', stacked=True, color=Custom_colors)
+  plt.tight_layout()
   customer_month.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', ncol=2)
   plt.xlabel("Month")
   plt.ylabel("Number of Customers")
-  plt.title("Customer Segmentation by Month")
+  plt.title("Monthly Active Customers by RFM Segment")
   plt.show()
   ```
   Output
-  ![image](https://github.com/user-attachments/assets/7f9db91e-cec2-487e-9743-94e5e079b759)
+  <img width="1275" height="619" alt="image" src="https://github.com/user-attachments/assets/29ad72e5-3061-4d6e-afeb-b4e9b37977ff" />
 
-
-  
   ``` python
-  # Segment recency by time
-  rmf_recency_month = pd.merge(final_rfm, ecommerce_retail_update[['CustomerID','month']], on='CustomerID', how='left')
-  rmf_recency_month = rmf_recency_month.groupby(['month','Segment']).agg({'Recency':'mean'}).reset_index()
-  rmf_recency_month = rmf_recency_month.pivot_table(values='Recency', index='month', columns='Segment', fill_value =0)
-  
-  # Create area chart
-  recency_month = rmf_recency_month.plot(kind='area', stacked=True, color=Custom_colors)
-  plt.tight_layout() # Adjust layout to prevent overlapping
-  recency_month.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', ncol=2)
-  plt.xlabel("Month")
-  plt.ylabel("Average Recency (Days)")
-  plt.title("Average Recency by Customer Segment Over Time")
-  plt.show()
+  seg_profile = final_rfm.groupby('Segment').agg(
+      Customers=('CustomerID','count'), Avg_Recency=('Recency','mean'),
+      Avg_Frequency=('Frequency','mean'), Avg_Monetary=('Monetary','mean'),
+      Total_Monetary=('Monetary','sum')).round(0)
+  seg_profile['Pct_Customers'] = (seg_profile['Customers']/seg_profile['Customers'].sum()*100).round(1)
+  seg_profile['Pct_Revenue'] = (seg_profile['Total_Monetary']/seg_profile['Total_Monetary'].sum()*100).round(1)
+  seg_profile.sort_values('Total_Monetary', ascending=False)
   ```
-  Output
-  ![image](https://github.com/user-attachments/assets/b0d14863-731f-4b16-b195-55ad6cbf3355)
 
+  Output 
 
-  
-  ``` python
-  # Segment frequency by time
-  rmf_frequency_month = pd.merge(final_rfm, ecommerce_retail_update[['CustomerID','month']], on='CustomerID', how='left')
-  rmf_frequency_month = rmf_frequency_month.groupby(['month','Segment']).agg({'Frequency':'mean'}).reset_index()
-  rmf_frequency_month = rmf_frequency_month.pivot_table(values='Frequency', index='month', columns='Segment', fill_value =0)
-  
-  # Create area chart
-  frequency_month = rmf_frequency_month.plot(kind='area', stacked=True, color=Custom_colors)
-  plt.tight_layout() # Adjust layout to prevent overlapping
-  frequency_month.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', ncol=2)
-  plt.xlabel("Month")
-  plt.ylabel("Average Frequency")
-  plt.title("Average Frequency by Customer Segment Over Time")
-  plt.show()
-  ```
-  Output
-  ![image](https://github.com/user-attachments/assets/b4b81b39-346a-4783-9229-26fe5c3b7db6)
+  | Segment             | Customers | Avg_Recency | Avg_Frequency | Avg_Monetary | Total_Monetary | Pct_Customers | Pct_Revenue |
+  |---------------------|----------:|------------:|--------------:|-------------:|---------------:|--------------:|------------:|
+  | Champions           | 703       | 10.0        | 14.0          | 7543.0       | 5302829.0      | 16.2          | 59.9        |
+  | Loyal               | 321       | 38.0        | 6.0           | 2879.0       | 924276.0       | 7.4           | 10.4        |
+  | At Risk             | 319       | 139.0       | 4.0           | 2108.0       | 672472.0       | 7.4           | 7.6         |
+  | Need Attention      | 337       | 29.0        | 4.0           | 1478.0       | 498071.0       | 7.8           | 5.6         |
+  | Promising           | 240       | 22.0        | 2.0           | 1548.0       | 371435.0       | 5.5           | 4.2         |
+  | 5     | Hibernating customers | 685     | 135.0       | 2.0           | 409.0        | 280481.0       | 15.8          | 3.2         |
+  | 6     | Potential Loyalist  | 400       | 29.0        | 3.0           | 649.0        | 259522.0       | 9.2           | 2.9         |
+  | 7     | Cannot Lose Them    | 123       | 232.0       | 2.0           | 1909.0       | 234859.0       | 2.8           | 2.7         |
+  | 8     | Lost customers      | 567       | 278.0       | 1.0           | 220.0        | 124483.0       | 13.1          | 1.4         |
+  | 9     | About To Sleep      | 236       | 80.0        | 1.0           | 383.0        | 90336.0        | 5.4           | 1.0         |
+  | 10    | New Customers       | 407       | 29.0        | 1.0           | 220.0        | 89436.0        | 9.4           | 1.0         |
 
-
-  
+   
   ``` python
   # Segment monetary by time
-  rmf_monetary_month = pd.merge(final_rfm, ecommerce_retail_update[['CustomerID','month']], on='CustomerID', how='left')
-  rmf_monetary_month = rmf_monetary_month.groupby(['month','Segment']).agg({'Monetary':'sum'}).reset_index()
-  rmf_monetary_month = rmf_monetary_month.pivot_table(values='Monetary', index='month', columns='Segment', fill_value =0)
+  rmf_monetary_month = ecommerce_retail_update.merge(final_rfm[['CustomerID','Segment']], on='CustomerID', how='inner')
+  rmf_monetary_month = rmf_monetary_month.groupby(['month','Segment']).agg({'Spend':'sum'}).reset_index()
+  rmf_monetary_month = rmf_monetary_month.pivot_table(values='Spend', index='month', columns='Segment', fill_value=0)
   
   # Create area chart
   monetary_month = rmf_monetary_month.plot(kind='area', stacked=True, color=Custom_colors)
   plt.ticklabel_format(axis='y', style='plain')
-  plt.tight_layout() # Adjust layout to prevent overlapping
+  plt.tight_layout()
   monetary_month.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', ncol=2)
   plt.xlabel("Month")
-  plt.ylabel("Total Monetary")
-  plt.title("Total Monetary by Customer Segment Over Time")
+  plt.ylabel("Total Spend")
+  plt.title("Monthly Spend by RFM Segment")
   plt.show()
   ```
-  Output
-  ![image](https://github.com/user-attachments/assets/26acd8f9-2f1e-4632-9ebd-c0c56f000495)
+  Output 
+  
+  <img width="1260" height="621" alt="image" src="https://github.com/user-attachments/assets/afd9a66f-9063-4a61-942a-4cf41bc531d4" />
+
 
   </details>
 </details>    
@@ -836,13 +823,13 @@ Table 2: Segmentation
 ## 🔎 Final Conclusion & Recommendations  
 
 👉🏻 Based on the insights and findings above, we would recommend the [stakeholder team] to consider the following:  
-✔️ The largest customer segments are Hibernating Customers (17%), Champions (15%), Potential Loyalists (13%), and At-Risk customers (12%).   
-✔️ The Recency metric indicates that customers tend to return to purchase more frequently in October and November, with a significant increase in new customers.   
-✔️ The Frequency metric shows that most customer segments have a declining purchase frequency over time, which is a concerning trend.   
-✔️ The Monetary metric reveals that revenue mainly comes from the Champions, Loyal, and Potential Loyal segments, with a sharp increase in September, October, and November.    
+✔️ The largest customer segments are Hibernating Customers (16%), Champions (16%), and Lost Customers (13%), together accounting for nearly half of all customers.  
+✔️ The Customer Segmentation by Month chart shows that the number of active customers increases significantly from September to November, reaching its peak in November. The number of new customers also grows during this period, which coincides with the year-end shopping season.   
+✔️ Champions account for 16% of all customers but contribute 59.9% of total revenue. Together, Champions and Loyal customers represent 23.6% of customers and contribute around 70.3% of total revenue, showing that revenue mainly comes from these two segments.   
+✔️ Lost Customers account for 13% of all customers but contribute only 1.4% of total revenue. This suggests that customers who stopped purchasing generally contributed a relatively small amount of revenue.   
+✔️ The Monetary metric shows that total spending increases significantly from September to November, reaching its highest point in November. Champions contribute the largest share of spending during this period, making them an important customer segment for the business.   
      
 📌 Key Takeaways:  
-✔️ The proportion of Hibernating and At-risk customers is relatively high. The company should conduct calls and surveys to understand why these customers are purchasing less. Based on the findings, the company can implement corrective actions and introduce attractive promotions to encourage these segments to return.      
-✔️ Customers tend to shop more in September, October, and November, as they prepare for Christmas and New Year by decorating their homes and purchasing essential items. This is an ideal period for the company to attract and convert customers through high-quality products, appealing vouchers, and excellent service.    
-✔️ Analyze the reasons behind the decline in purchase frequency among customer segments and improve marketing campaigns as well as exclusive programs for loyal customers.     
-✔️ The company should focus on the Recency metric, as it reflects business performance and the effectiveness of marketing campaigns. This insight can help develop strategies to increase customer acquisition and retention.      
+✔️ Prioritize retention campaigns for the "Cannot Lose Them" segment by offering personalized discounts and following up with inactive customers to encourage them to return.   
+✔️ Take advantage of the increase in customers and revenue from September to November by offering seasonal promotions and vouchers to new customers, encouraging them to make repeat purchases.   
+✔️ Reach out to Hibernating and At-Risk customers to understand why they have stopped purchasing regularly. Offer targeted discounts or personalized product recommendations to encourage them to return.   
