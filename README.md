@@ -742,7 +742,8 @@ Table 2: Segmentation
   ```
   Output
   
-  ![image](https://github.com/user-attachments/assets/071413cd-1488-4ca7-ae01-f04f709c877b)
+  <img width="645" height="489" alt="image" src="https://github.com/user-attachments/assets/bf3e5e3c-872b-4c50-95ce-974ea75352b0" />
+
 
   </details>
 
